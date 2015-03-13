@@ -26,10 +26,95 @@
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
-#include <glib.h>
+#include <dirent.h>
+       
+
+
+char *searchkey;
+uint64_t total_PSS;
+int total_proc;
+
+struct process {
+  int pid;
+  char *name;
+  uint64_t PSS_kb;
+};
+
+
+
+static void do_one_process(int pid)
+{
+  FILE *file;
+  char buffer[4096];
+  char filename[4096];
+  struct process process;
+  if (!pid)
+    return;
+    
+  memset(&process, 0, sizeof(struct process));
+  
+  sprintf(filename, "/proc/%i/comm", pid);
+  file = fopen(filename, "r");
+  if (file) {
+    char *c;
+    buffer[0] = 0;
+    fgets(buffer, 4096, file);
+    c = strchr(buffer, '\n');
+    if (c)
+      *c = 0;
+    process.name = strdup(buffer);
+    fclose(file);
+  }
+  if (process.name && searchkey && strstr(process.name, searchkey) == NULL)
+    return;
+
+  sprintf(filename, "/proc/%i/smaps", pid);
+  file = fopen(filename, "r");
+  if (file) {
+    while (!feof(file)) {
+      char *c;
+      buffer[0] = 0;
+      fgets(buffer, 4096, file);
+      if (strlen(buffer) == 0)
+        break;
+        
+      if (strstr(buffer, "Pss:") == NULL)
+        continue;
+      process.PSS_kb += strtoull(buffer+4, NULL, 10);
+    }
+    fclose(file);
+  }
+  
+  
+  
+  printf("%lli Kb: %s (%i) \n", process.PSS_kb, process.name, pid);
+  total_PSS += process.PSS_kb;
+  total_proc++;
+}
 
 int main(int argc, char **argv)
 {
+  DIR *dir;
+  struct dirent *entry;
+  
+  if (argc > 1) {
+    searchkey = strdup(argv[1]);
+  }
+  
+  dir = opendir("/proc");
+  while (dir) {
+    int pid;
+    entry = readdir(dir);
+    if (!entry)
+      break;
+    if (entry->d_name[0] == '.')
+      continue;
+    pid = strtoull(entry->d_name, NULL, 10);
+    do_one_process(pid);
+  }
+  printf("Total is %lli Kb (%i processes)\n", total_PSS, total_proc);
+  closedir(dir);
   return EXIT_SUCCESS;
 }
