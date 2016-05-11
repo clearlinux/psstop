@@ -29,7 +29,8 @@
 #include <stdint.h>
 
 #include <dirent.h>
-       
+#include <inttypes.h>
+
 
 
 char *searchkey;
@@ -60,11 +61,12 @@ static void do_one_process(int pid)
   if (file) {
     char *c;
     buffer[0] = 0;
-    fgets(buffer, 4096, file);
-    c = strchr(buffer, '\n');
-    if (c)
-      *c = 0;
-    process.name = strdup(buffer);
+    if (fgets(buffer, 4096, file)!=NULL){
+        c = strchr(buffer, '\n');
+        if (c)
+          *c = 0;
+        process.name = strdup(buffer);
+    }
     fclose(file);
   }
   if (process.name && searchkey && strstr(process.name, searchkey) == NULL)
@@ -74,22 +76,19 @@ static void do_one_process(int pid)
   file = fopen(filename, "r");
   if (file) {
     while (!feof(file)) {
-      char *c;
       buffer[0] = 0;
-      fgets(buffer, 4096, file);
-      if (strlen(buffer) == 0)
-        break;
-        
-      if (strstr(buffer, "Pss:") == NULL)
-        continue;
-      process.PSS_kb += strtoull(buffer+4, NULL, 10);
+      if (fgets(buffer, 4096, file)!=NULL){
+          if (strlen(buffer) == 0)
+            break;
+          if (strstr(buffer, "Pss:") == NULL)
+            continue;
+          process.PSS_kb += strtoull(buffer+4, NULL, 10);
+        }
     }
     fclose(file);
   }
   
-  
-  
-  printf("%lli Kb: %s (%i) \n", process.PSS_kb, process.name, pid);
+  printf("%" PRIu64 " Kb: %s (%i) \n", process.PSS_kb, process.name, pid);
   total_PSS += process.PSS_kb;
   total_proc++;
 }
@@ -114,7 +113,8 @@ int main(int argc, char **argv)
     pid = strtoull(entry->d_name, NULL, 10);
     do_one_process(pid);
   }
-  printf("Total is %lli Kb (%i processes)\n", total_PSS, total_proc);
+
+  printf("Total is %" PRIu64 "Kb (%i processes)\n", total_PSS, total_proc);
   closedir(dir);
   return EXIT_SUCCESS;
 }
