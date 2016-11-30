@@ -1,11 +1,11 @@
 /*
- *    Clear Linux Project for Intel Architecture Power tweaks
+ *    Clear Linux Project for Intel Architecture memory tracking 
  *
- *      Copyright (C) 2014 Intel Corporation
+ *      Copyright (C) 2014-2016 Intel Corporation
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, version 2 or later of the License.
+ *   the Free Software Foundation, version 3 or later of the License.
  *
  *   This program is distributed in the hope that it will be useful,
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
