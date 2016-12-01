@@ -17,7 +17,7 @@
  *
  *   Authors:
  *         Arjan van de Ven <arjan@linux.intel.com>
- *
+ *         Victor Rodriguez <victor.rodriguez.bahena@intel.com>
  */
 
 #define _GNU_SOURCE
