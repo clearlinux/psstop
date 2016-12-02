@@ -1,5 +1,5 @@
 /*
- *    Clear Linux Project for Intel Architecture memory tracking 
+ *    Clear Linux Project for Intel Architecture memory tracking
  *
  *      Copyright (C) 2014-2016 Intel Corporation
  *
@@ -34,6 +34,7 @@
 char *searchkey;
 uint64_t total_PSS;
 int total_proc;
+int verbose_flag = 0;
 
 struct process {
         int pid;
@@ -90,15 +91,43 @@ static void do_one_process(int pid)
         free(process.name);
 }
 
+void print_help(){
+    printf("\nHelp : \n");
+    printf("    -h : Print this help\n");
+    printf("    -p : Process name to measure memory usage\n");
+    printf("    -v : Verbose \n");
+    printf(" \n");
+}
+
 int main(int argc, char **argv)
 {
-        DIR *dir;
-        struct dirent *entry;
 
-        if (argc > 1) {
-                searchkey = strdup(argv[1]);
+    DIR *dir;
+    struct dirent *entry;
+
+
+    int c = 0;
+
+    if (argc == 1 ){
+        print_help();
+    }
+
+    while ((c = getopt (argc, argv, "vhp:")) != -1){
+        switch (c) {
+            case 'v':
+                verbose_flag = 1;
+                break;
+            case 'p':
+                searchkey = strdup(optarg);
+                break;
+            case 'h':
+                print_help();
+                return EXIT_SUCCESS;
+            default:
+                print_help();
+                abort ();
         }
-
+    }
         dir = opendir("/proc");
 
         printf("\n%-20s %-5s : %-5s \n\n","Process Name", "PID", "Size in KB");
