@@ -108,10 +108,6 @@ int main(int argc, char **argv)
 
     int c = 0;
 
-    if (argc == 1 ){
-        print_help();
-    }
-
     while ((c = getopt (argc, argv, "vhp:")) != -1){
         switch (c) {
             case 'v':
