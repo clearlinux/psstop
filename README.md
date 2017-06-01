@@ -47,9 +47,17 @@ process running.
 
     autoreconf --install
 
+    ./configure
+
     make
 
     make install
+
+## Generating RPM packages
+
+    make dist
+
+    rpmbuild -ta psstop*.tar.gz
 
 ## Usage
 
