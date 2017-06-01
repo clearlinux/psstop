@@ -1,4 +1,4 @@
-EXTRA_DIST = COPYING
+EXTRA_DIST = COPYING psstop.spec
 
 bin_PROGRAMS = psstop
 

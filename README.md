@@ -53,6 +53,12 @@ process running.
 
     make install
 
+## Generating RPM packages
+
+    make dist
+
+    rpmbuild -ta psstop*.tar.gz
+
 ## Usage
 
     psstop
