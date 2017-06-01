@@ -47,6 +47,8 @@ process running.
 
     autoreconf --install
 
+    ./configure
+
     make
 
     make install
