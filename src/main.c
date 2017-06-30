@@ -85,7 +85,7 @@ static void do_one_process(int pid)
                 fclose(file);
         }
 
-        printf("%-20s %-5i : %-5" PRIu64 "  Kb\n",process.name, pid , process.PSS_kb);
+        printf("%-20s %-5i : %-6" PRIu64 "  Kb\n",process.name, pid , process.PSS_kb);
         total_PSS += process.PSS_kb;
         total_proc++;
         free(process.name);
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
     }
         dir = opendir("/proc");
 
-        printf("\n%-20s %-5s : %-5s \n\n","Process Name", "PID", "Size in KB");
+        printf("\n%-20s %-5s : %-6s \n\n","Process Name", "PID", "Size in KB");
         while (dir) {
                 int pid;
                 entry = readdir(dir);
