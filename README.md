@@ -3,7 +3,7 @@
 
 The main purpose of a computer system is to execute programs. These programs,
 together with the data they access, must be at least partially in main memory
-during execution. As a developer and user are necessary to know the amount of
+during execution. As a developer and user, it is necessary to know the amount of
 memory consumed by every process in execution. PSSTOP helps to get this
 information in an accurate way.
 
@@ -12,8 +12,8 @@ PSSTOP gets the memory of each process from:
     /proc/PID/smaps
 
 The /proc/PID/smaps is an extension based on maps, showing the memory
-consumption for each of the process's mappings. For each of mappings there
-is a series of lines such as the following:
+consumption for each of the process's mappings. For each mapping, there is a
+series of lines such as the following:
 
     Size:               1084 kB
     Rss:                 892 kB
@@ -34,11 +34,11 @@ is a series of lines such as the following:
     MMUPageSize:           4 kB
     Locked:                0 kB
 
-PPSTOP tracks the amount of memory from the process' proportional share of this
+PSSTOP tracks the amount of memory from the process's proportional share of this
 mapping (Pss) and the proportional swap share of the mapping (SwapPss).
 
-Others tools like ps doesn't give an acurate detail of which processes are
-consuming the memory of our system . Depending on how you look at it, ps is not
+Others tools like ps do not provide accurate detail about which processes are
+consuming the memory on our system. Depending on how you look at it, ps is not
 reporting the real memory usage of processes. What it is really doing is
 showing how much real memory each process would take up if it were the only
 process running.
