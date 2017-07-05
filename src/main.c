@@ -31,9 +31,14 @@
 #include <dirent.h>
 #include <inttypes.h>
 
+// TASK_COMM_LEN on Linux
+#define MAX_COMM_LEN 16
+
 char *searchkey;
 uint64_t total_PSS;
 int total_proc;
+int use_cmdline = 0;
+
 
 struct process {
         int pid;
@@ -52,18 +57,41 @@ static void do_one_process(int pid)
 
         memset(&process, 0, sizeof(struct process));
 
-        sprintf(filename, "/proc/%i/comm", pid);
-        file = fopen(filename, "r");
-        if (file) {
-                char *c;
-                buffer[0] = 0;
-                if (fgets(buffer, 4096, file) != NULL) {
-                        c = strchr(buffer, '\n');
-                        if (c)
-                                *c = 0;
-                        process.name = strdup(buffer);
+        if (use_cmdline) {
+                sprintf(filename, "/proc/%i/cmdline", pid);
+                file = fopen(filename, "r");
+                if (file) {
+                        char *c, *name;
+                        buffer[0] = 0;
+                        if (fgets(buffer, 4096, file) != NULL) {
+                                name = buffer;
+                                if (c = strchr(buffer, '\n'))
+                                        *c = 0;
+                                if (c = strchr(buffer, ' '))
+                                        *c = 0;
+                                if (c = strrchr(buffer, '/'))
+                                        name = c + 1;
+                                if (strlen(name) > MAX_COMM_LEN)
+                                        name[MAX_COMM_LEN] = 0;
+                                process.name = strdup(name);
+                        }
+                        fclose(file);
                 }
-                fclose(file);
+        }
+
+        if (!process.name) {
+                sprintf(filename, "/proc/%i/comm", pid);
+                file = fopen(filename, "r");
+                if (file) {
+                        char *c;
+                        buffer[0] = 0;
+                        if (fgets(buffer, 4096, file) != NULL) {
+                                if (c = strchr(buffer, '\n'))
+                                        *c = 0;
+                                process.name = strdup(buffer);
+                        }
+                        fclose(file);
+                }
         }
         if (process.name && searchkey && strstr(process.name, searchkey) == NULL)
                 return;
@@ -94,6 +122,7 @@ void print_help(){
     printf("\nHelp : \n");
     printf("    -h : Print this help\n");
     printf("    -p : Process name to measure memory usage\n");
+    printf("    -c : Use cmdline for process name\n");
     printf(" \n");
 }
 
@@ -106,8 +135,11 @@ int main(int argc, char **argv)
 
     int c = 0;
 
-    while ((c = getopt (argc, argv, "hp:")) != -1){
+    while ((c = getopt (argc, argv, "chp:")) != -1){
         switch (c) {
+            case 'c':
+                use_cmdline = 1;
+                break;
             case 'p':
                 searchkey = strdup(optarg);
                 break;
