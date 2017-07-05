@@ -34,7 +34,6 @@
 char *searchkey;
 uint64_t total_PSS;
 int total_proc;
-int verbose_flag = 0;
 
 struct process {
         int pid;
@@ -95,7 +94,6 @@ void print_help(){
     printf("\nHelp : \n");
     printf("    -h : Print this help\n");
     printf("    -p : Process name to measure memory usage\n");
-    printf("    -v : Verbose \n");
     printf(" \n");
 }
 
@@ -108,11 +106,8 @@ int main(int argc, char **argv)
 
     int c = 0;
 
-    while ((c = getopt (argc, argv, "vhp:")) != -1){
+    while ((c = getopt (argc, argv, "hp:")) != -1){
         switch (c) {
-            case 'v':
-                verbose_flag = 1;
-                break;
             case 'p':
                 searchkey = strdup(optarg);
                 break;
