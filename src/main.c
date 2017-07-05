@@ -65,11 +65,11 @@ static void do_one_process(int pid)
                         buffer[0] = 0;
                         if (fgets(buffer, 4096, file) != NULL) {
                                 name = buffer;
-                                if (c = strchr(buffer, '\n'))
+                                if ((c = strchr(buffer, '\n')))
                                         *c = 0;
-                                if (c = strchr(buffer, ' '))
+                                if ((c = strchr(buffer, ' ')))
                                         *c = 0;
-                                if (c = strrchr(buffer, '/'))
+                                if ((c = strrchr(buffer, '/')))
                                         name = c + 1;
                                 if (strlen(name) > MAX_COMM_LEN)
                                         name[MAX_COMM_LEN] = 0;
@@ -86,7 +86,7 @@ static void do_one_process(int pid)
                         char *c;
                         buffer[0] = 0;
                         if (fgets(buffer, 4096, file) != NULL) {
-                                if (c = strchr(buffer, '\n'))
+                                if ((c = strchr(buffer, '\n')))
                                         *c = 0;
                                 process.name = strdup(buffer);
                         }
