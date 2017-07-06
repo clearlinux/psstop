@@ -8,9 +8,9 @@ psstop(1) -- memory snapshot of the current processes based on /proc
 ## DESCRIPTION
 
 
-PPSTOP tracks the amount of memory from the process' proportional share of this
+PSSTOP tracks the amount of memory from the process's proportional share of this
 mapping (Pss) and the proportional swap share of the mapping (SwapPss). The
-momory information came from smaps (/proc/PID/smaps). The /proc/PID/smaps is an
+memory information comes from smaps (/proc/PID/smaps). The /proc/PID/smaps is an
 extension based on maps, showing the memory consumption for each of the
 process's mappings.
 
