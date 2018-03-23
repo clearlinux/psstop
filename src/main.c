@@ -30,6 +30,7 @@
 
 #include <dirent.h>
 #include <inttypes.h>
+#include <limits.h>
 
 // TASK_COMM_LEN on Linux
 #define MAX_COMM_LEN 16
@@ -46,14 +47,45 @@ struct process {
         uint64_t PSS_kb;
 };
 
-static void do_one_process(int pid)
+struct process *allprocs=NULL;
+int numproc=0;
+
+int cmpfunc (const void * a, const void * b) {
+    struct process *s_a = (struct process *)a;
+    struct process *s_b = (struct process *)b;
+    if ((s_a->PSS_kb < INT_MIN && s_a->PSS_kb > INT_MAX) ||
+            (s_b->PSS_kb < INT_MIN && s_b->PSS_kb > INT_MAX) ){
+        printf("Error sizes greater than 2^41 i.e. 2TB\n");
+        exit(1);
+    }
+    return ( s_a->PSS_kb - s_b->PSS_kb );
+}
+
+void addnode(struct process *p)
+{
+    numproc++;
+    allprocs = realloc(allprocs,numproc*sizeof(struct process));
+    if (allprocs==NULL) {
+        printf("Error reallocating memory!");
+        free (allprocs);
+        exit (1);
+    }
+    allprocs[numproc-1]=*p;
+}
+
+void print_list(){
+    struct process *p = allprocs;
+    for (int i=0 ; i<numproc; i++){
+        printf("%-20s %-5i : %-5" PRIu64 "  Kb\n", p[i].name ,p[i].pid, p[i].PSS_kb);
+    }
+}
+
+struct process do_one_process(int pid)
 {
         FILE *file;
         char buffer[4096];
         char filename[4096];
         struct process process;
-        if (!pid)
-                return;
 
         memset(&process, 0, sizeof(struct process));
 
@@ -111,11 +143,8 @@ static void do_one_process(int pid)
                 }
                 fclose(file);
         }
-
-        printf("%-20s %-5i : %-6" PRIu64 "  Kb\n",process.name, pid , process.PSS_kb);
-        total_PSS += process.PSS_kb;
-        total_proc++;
-        free(process.name);
+        process.pid = pid;
+        return process;
 }
 
 void print_help(){
@@ -131,7 +160,7 @@ int main(int argc, char **argv)
 
     DIR *dir;
     struct dirent *entry;
-
+    struct process process;
 
     int c = 0;
 
@@ -153,7 +182,6 @@ int main(int argc, char **argv)
     }
         dir = opendir("/proc");
 
-        printf("\n%-20s %-5s : %-6s \n\n","Process Name", "PID", "Size in KB");
         while (dir) {
                 int pid;
                 entry = readdir(dir);
@@ -162,9 +190,19 @@ int main(int argc, char **argv)
                 if (entry->d_name[0] == '.')
                         continue;
                 pid = strtoull(entry->d_name, NULL, 10);
-                do_one_process(pid);
+                if (pid){
+                    process = do_one_process(pid);
+                    if (process.pid == pid){
+                        addnode(&process);
+                        total_PSS += process.PSS_kb;
+                        total_proc++;
+                    }
+                }
         }
 
+        printf("\n%-20s %-5s : %-5s \n\n","Process Name", "PID", "Size in KB");
+        qsort(allprocs,total_proc,sizeof(process), cmpfunc);
+        print_list();
         printf("\nTotal is %" PRIu64 "Kb (%i processes)\n", total_PSS, total_proc);
         closedir(dir);
         free(searchkey);
