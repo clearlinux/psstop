@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.66])
-AC_INIT(psstop, 1, arjan@linux.intel.com)
+AC_INIT(psstop, 1.2, dev@lists.clearlinux.org)
 AM_INIT_AUTOMAKE([foreign -Wall -W subdir-objects])
 AM_SILENT_RULES([yes])
 AC_PROG_CC
