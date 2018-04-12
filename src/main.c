@@ -45,6 +45,7 @@ struct process {
         int pid;
         char *name;
         uint64_t PSS_kb;
+        int valid;
 };
 
 struct process *allprocs=NULL;
@@ -125,8 +126,10 @@ struct process do_one_process(int pid)
                         fclose(file);
                 }
         }
-        if (process.name && searchkey && strstr(process.name, searchkey) == NULL)
-                return;
+        if (process.name && searchkey && strstr(process.name, searchkey) == NULL){
+                process.valid = 0;
+                return process;
+        }
 
         sprintf(filename, "/proc/%i/smaps", pid);
         file = fopen(filename, "r");
@@ -143,6 +146,7 @@ struct process do_one_process(int pid)
                 }
                 fclose(file);
         }
+        process.valid = 1;
         process.pid = pid;
         return process;
 }
@@ -192,7 +196,7 @@ int main(int argc, char **argv)
                 pid = strtoull(entry->d_name, NULL, 10);
                 if (pid){
                     process = do_one_process(pid);
-                    if (process.pid == pid){
+                    if (process.valid == 1 && process.pid == pid){
                         addnode(&process);
                         total_PSS += process.PSS_kb;
                         total_proc++;
